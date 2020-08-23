@@ -215,20 +215,4 @@ class Vec {
 }
 
 
-class Group {
-  constructor(props) {
-    this.group = [];
-  }
 
-  add(elem) {
-    if (!this.group.includes(elem))
-      this.group.push(elem);
-  }
-
-  delete(elem) {
-    const index = this.group.indexOf(elem);
-    if (index !== -1)
-      this.group.splice(index, 1);
-  }
-
-}
