@@ -24,6 +24,23 @@ class Group {
     iterable.forEach(group.add, group);
     return group;
   }
+
+  [Symbol.iterator]() {
+    return new GroupIterator(this);
+  }
+}
+
+class GroupIterator {
+  constructor(group) {
+    this.members = group.members;
+    this.index = 0;
+  }
+
+  next() {
+    if (this.index === this.members.length)
+      return {done: true};
+    return {value: this.members[this.index++], done: false};
+  }
 }
 
 let group = Group.from([10, 20]);
