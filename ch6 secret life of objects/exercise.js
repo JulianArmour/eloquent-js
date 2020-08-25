@@ -52,3 +52,8 @@ group.add(10);
 group.delete(10);
 console.log(group.has(10));
 // → false
+
+console.log();
+
+let map = {one: true, two: true, hasOwnProperty: true};
+console.log(Map.hasOwnProperty.call(map, "one"));
