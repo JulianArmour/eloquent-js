@@ -97,17 +97,62 @@ function routeRobot(state, memory) {
   return {direction: memory[0], memory: memory.slice(1)};
 }
 
-function findRoute(graph, from, to) {
+function findRoute(graph, from, searchPredicate) {
   let work = [{at: from, route: []}];
   for (let i = 0; i < work.length; i++) {
     let {at, route} = work[i];
     for (let place of graph[at]) {
-      if (place == to) return route.concat(place);
-      if (!work.some(w => w.at == place)) {
+      if (searchPredicate(place)) return route.concat(place);
+      if (!work.some(w => w.at === place)) {
         work.push({at: place, route: route.concat(place)});
       }
     }
   }
 }
 
-runRobot(VillageState.random(), routeRobot, []);
+function goalOrientedRobot({place, parcels}, route) {
+  if (route.length === 0) {
+    let parcel = parcels[0];
+    if (parcel.place !== place) {
+      route = findRoute(roadGraph, place, place => place === parcel.place);
+    } else {
+      route = findRoute(roadGraph, place, place => place === parcel.address);
+    }
+  }
+  return {direction: route[0], memory: route.slice(1)};
+}
+
+
+// exercises
+
+function compareRobots(robot1, memory1, robot2, memory2) {
+  const tasks = 1000;
+  let [turns1, turns2] = [0, 0];
+  for (let task = 0; task < tasks; task++) {
+    let simulation = VillageState.random();
+    turns1 += runRobot(simulation, robot1, memory1);
+    turns2 += runRobot(simulation, robot2, memory2);
+  }
+  return [turns1 / tasks, turns2 / tasks];
+}
+
+function betterGoalOrientedRobot({place, parcels}, route) {
+  let closestParcel;
+  const parcelPlaces = parcels.filter(p => p.place !== place).map(p => p.place);
+  if (parcelPlaces.length !== 0)
+    closestParcel = findRoute(roadGraph, place, pl => parcelPlaces.includes(pl));
+
+  let closestDelivery;
+  const deliveryPlaces = parcels.filter(p => p.place === place).map(p => p.address);
+  if (deliveryPlaces.length !== 0)
+    closestDelivery = findRoute(roadGraph, place, pl => deliveryPlaces.includes(pl));
+
+  if (closestParcel && closestDelivery) {
+    route = closestParcel.length < closestDelivery.length ? closestParcel : closestDelivery;
+  } else {
+    route = closestParcel || closestDelivery;
+  }
+  return {direction: route[0], memory: route.slice(1)};
+}
+
+console.log(compareRobots(betterGoalOrientedRobot, [], goalOrientedRobot, []));
