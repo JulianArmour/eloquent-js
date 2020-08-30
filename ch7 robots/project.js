@@ -41,9 +41,9 @@ class VillageState {
       return this;
     } else {
       let parcels = this.parcels.map(p => {
-        if (p.place != this.place) return p;
+        if (p.place !== this.place) return p;
         return {place: destination, address: p.address};
-      }).filter(p => p.place != p.address);
+      }).filter(p => p.place !== p.address);
       return new VillageState(destination, parcels);
     }
   }
@@ -64,7 +64,7 @@ class VillageState {
 
 function runRobot(state, robot, memory) {
   for (let turn = 0; ; turn++) {
-    if (state.parcels.length == 0) {
+    if (state.parcels.length === 0) {
       console.log(`Done in ${turn} turns`);
       return turn;
     }
